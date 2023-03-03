@@ -1,5 +1,8 @@
 <h1 class="text-center mt-5">vista principal</h1>
 
+{{#if error}}
+<h2 class="text-center mt-5">Error al cargar los productos. Intente más tarde.</h2>
+    {{else}}
 
 <div class="row mt-5">
     {{#each productos}}
@@ -12,3 +15,5 @@
         </div>
     {{/each}}
 </div>
+
+{{/if}}

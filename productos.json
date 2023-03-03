@@ -9,7 +9,7 @@
             "imagen": "jordan 1.webp"
         },
         {
-            "id": 1,
+            "id":2,
             "nombre": "Producto 2",
             "stock": 5,
             "precio": 15000,
@@ -17,7 +17,7 @@
             "imagen": "jordan 1.webp"
         },
         {
-            "id": 1,
+            "id": 3,
             "nombre": "Producto 3",
             "stock": 5,
             "precio": 15000,

@@ -47,8 +47,24 @@ const leerProductos = () => {
     })
 }
 
+const leerProductosPorId = (id) => {
+    return new Promise((resolve, reject) => {
+        fs.readFile("productos.json", "utf8", (error, data) => {
+            if(error) return reject("Ha ocurrido un error al cargar los productos.");
+            let productos = JSON.parse(data)
+            let found = productos.productos.find(producto => producto.id == id);
+            if(found){
+                resolve(found)
+            }else{
+                reject("Producto no encontrado.")
+            }
+        })
+    })
+}
+
 //RUTAS
 
+//RUTA PRINCIPAL HOME
 app.get("/", (req, res) => {
     leerProductos().then(productos=> {
         res.render("home", {
@@ -59,4 +75,36 @@ app.get("/", (req, res) => {
             error
         });
     })
+})
+
+app.get("/inventario", (req, res) => {
+    leerProductos().then(productos=> {
+        res.render("inventario", {
+            productos
+        });
+    }).catch(error => {
+        res.render("inventario", {
+            error
+        });
+    })
+})
+
+app.get("/update/productos/:id", (req, res) => {
+    let { id } = req.params;
+    leerProductosPorId(id).then(producto => {
+        res.render("updateProducto", {
+            producto
+        })
+
+    }).catch(error => {
+        res.render("updateProducto", {
+            error
+        })
+    })
+})
+
+app.put("/productos", (req, res) => {
+    console.log(req.body);
+    console.log(req.files)
+    res.send("recibiendo datos para actualizar.")
 })
