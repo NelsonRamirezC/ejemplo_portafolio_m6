@@ -5,16 +5,13 @@
 {{else}}
 
 <form id="updateProducto">
-    ID: <input class="form-control" type="text" value="{{producto.id}}" disabled>
-    Nombre: <input class="form-control" type="text" value="{{producto.nombre}}" required>
-    Descripción: <input class="form-control" type="text" value="{{producto.descripcion}}" required>
-    Stock: <input class="form-control" type="text" value="{{producto.stock}}" required>
-    Precio: <input class="form-control" type="number" value="{{producto.precio}}" required>
-    Imagen: <input class="form-control" type="file">
-    <img src="/public/imgs/{{producto.imagen}}" alt="{{this.nombre}}">
-    <div>
-        <button type="submit" class="btn btn-warning mt-2">Modificar</button>
-    </div>
+    ID: <input class="form-control" name="id" id="idProducto" type="text" value="{{producto.id}}" disabled>
+    Nombre: <input class="form-control" name="nombre" type="text" value="{{producto.nombre}}" required>
+    Descripción: <input class="form-control" name="descripcion" type="text" value="{{producto.descripcion}}" required>
+    Stock: <input class="form-control" name="stock" type="text" value="{{producto.stock}}" required>
+    Precio: <input class="form-control" name="precio" type="number" value="{{producto.precio}}" required>
+    Imagen: <input class="form-control" name="foto" type="file">
+    <button type="submit" class="btn btn-warning">Modificar</button>
 </form>
 
 
@@ -31,6 +28,16 @@
 
     formulario.addEventListener("submit", (event) => {
         event.preventDefault();
-        console.log("Enviando datos.")
+        let id = idProducto.value
+        
+        axios.put("/productos/"+id, formulario)
+            .then( response => {
+                alert(response.data.message)
+                if(response.data.code == 200){
+                    location.href = "/inventario"
+                }
+            }).catch(error => {
+                console.log(error)
+            });
     })
 </script>

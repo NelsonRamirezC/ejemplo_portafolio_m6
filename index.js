@@ -20,7 +20,8 @@ app.use(fileUpload({
     limits: { fileSize: 5 * 1024 * 1024 },
     abortOnLimit: true,
     responseOnLimit: "La imágen que está subiendo sobrepasa los 5mb permitidos."
-  }));
+}));
+
   app.use(cors());
   app.use('/public', express.static('public'))
 
@@ -42,7 +43,7 @@ const leerProductos = () => {
         fs.readFile("productos.json", "utf8", (error, data) => {
             if(error) return reject("Ha ocurrido un error al cargar los productos.");
             let productos = JSON.parse(data)
-            resolve(productos.productos)
+            resolve(productos)
         })
     })
 }
@@ -62,13 +63,22 @@ const leerProductosPorId = (id) => {
     })
 }
 
+const actualizarProductos = (productos) => {
+    return new Promise((resolve, reject) => {
+        fs.writeFile("productos.json", JSON.stringify(productos, null, 4), (error) => {
+            if(error) return reject("Error al actualizar productos.")
+            return resolve("productos actualizados correctamente.")
+        })
+    })
+}
+
 //RUTAS
 
 //RUTA PRINCIPAL HOME
 app.get("/", (req, res) => {
     leerProductos().then(productos=> {
         res.render("home", {
-            productos
+            productos: productos.productos
         });
     }).catch(error => {
         res.render("home", {
@@ -80,7 +90,7 @@ app.get("/", (req, res) => {
 app.get("/inventario", (req, res) => {
     leerProductos().then(productos=> {
         res.render("inventario", {
-            productos
+            productos: productos.productos
         });
     }).catch(error => {
         res.render("inventario", {
@@ -103,8 +113,66 @@ app.get("/update/productos/:id", (req, res) => {
     })
 })
 
-app.put("/productos", (req, res) => {
-    console.log(req.body);
-    console.log(req.files)
-    res.send("recibiendo datos para actualizar.")
+app.put("/productos/:id", async (req, res) => {
+    try {
+        let {id} = req.params;
+    let { nombre, descripcion, stock, precio } = req.body;
+    
+    let productoModificado = {
+        id, nombre, descripcion, stock, precio
+    };
+
+    let productos = await leerProductos();
+
+    //buscamos indice del producto que vamos a moficiar
+    let index = productos.productos.findIndex(producto => producto.id == id)
+    //le asignamos en primera instancia el nombre de la imágen antigua
+        productoModificado.imagen = productos.productos[index].imagen
+        //reemplazamos objeto antiguo por el nuevo.
+        productos.productos[index] = productoModificado;
+
+        //si lllega una foto
+        if(req.files){
+            let foto = req.files.foto; 
+            //creamos un nombre único para cada imagen usando uuid
+            let nombreImagen = `${uuid().slice(0,6)}-${foto.name}`;
+            //eliminamos foto antigua
+            let rutaFotoAntigua = __dirname + '/public/imgs/' + productos.productos[index].imagen;
+            //validamos si existe imagen antigua
+           fs.readFile(rutaFotoAntigua, "utf8", (error, data) => {
+                if(data){
+                    //si efectivamente existia la foto antigua, la elimnamos.
+                    fs.unlinkSync(rutaFotoAntigua)
+                }
+
+
+                //le asignamos el nombre muevo al producto 
+                productos.productos[index].imagen = nombreImagen;
+                //creamos ruta para guardar imágenes.
+                let rutaImagen = __dirname + '/public/imgs/' + nombreImagen;
+                //guardamos imagen en carpeta usando función mv.
+
+                foto.mv(rutaImagen, async (error) => {
+                    if(error){
+                        return res.status(500).json({code: 500, message: "error al guardar la imagen"})
+                    }else{
+                        console.log("actualizar producto con foto")
+                        await actualizarProductos(productos)
+                        return res.json({code: 200, message: "Producto actualizado correctamente."})
+                    }
+                })
+           })
+
+        }else{
+            console.log("actualizar producto sin foto")
+            await actualizarProductos(productos)
+            return res.json({code: 200, message:"Producto actualizado correctamente."})
+        }
+        
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({code: 500, message: "Error al actualizar el producto"})
+    }
+    
+
 })

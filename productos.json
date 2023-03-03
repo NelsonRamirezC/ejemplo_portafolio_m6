@@ -1,19 +1,19 @@
 {
     "productos": [
         {
-            "id": 1,
-            "nombre": "Producto 1",
-            "stock": 5,
-            "precio": 15000,
+            "id": "1",
+            "nombre": "Zapatillas jordan 1",
             "descripcion": "Es un producto nuevo",
-            "imagen": "jordan 1.webp"
+            "stock": "10",
+            "precio": "35000",
+            "imagen": "cf476d-imagen2.jpg"
         },
         {
-            "id":2,
+            "id": "2",
             "nombre": "Producto 2",
-            "stock": 5,
-            "precio": 15000,
             "descripcion": "Es un producto nuevo",
+            "stock": "5",
+            "precio": "30000",
             "imagen": "jordan 1.webp"
         },
         {
